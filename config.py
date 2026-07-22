@@ -77,6 +77,7 @@ SWISS_LOCATIONS = [
 # Order in which category sections appear on the dashboard.
 CATEGORY_ORDER = [
     "Geneva / Swiss private finance",
+    "Global macro hedge funds",
     "International institutions",
     "Central banks",
     "Rating agencies",
@@ -240,6 +241,63 @@ SOURCES = [
     {"name": "LinkedIn — Switzerland: portfolio / investment strategist",
      "category": "Geneva / Swiss private finance", "type": "link",
      "url": "https://www.linkedin.com/jobs/search/?keywords=investment%20strategist&location=Switzerland&sortBy=DD"},
+
+    # =======================================================================
+    #  GLOBAL MACRO HEDGE FUNDS
+    #  The discretionary / systematic macro shops where a central-bank-trained
+    #  macro economist who can code is a genuine fit (rates, FX, inflation).
+    #  No location filter: these seats are scarce, so surface all of them
+    #  (London / Geneva / Zug / NY) rather than risk filtering one out.
+    #  Profile "finance" keeps strategist / quant-researcher / macro-research
+    #  titles. Most pure-macro funds run NO public API (Rokos, Caxton, Element,
+    #  Capula, Eisler, Qube, Brevan Howard) -> bookmarks. Three multi-strats
+    #  with macro/quant desks DO expose one and are scraped.
+    # =======================================================================
+    # ---- scraped automatically (verified working) --------------------------
+    {"name": "Schonfeld (discretionary macro + quant)",
+     "category": "Global macro hedge funds", "type": "greenhouse",
+     "slug": "schonfeld", "profile": "finance"},
+    {"name": "Squarepoint Capital (quant; posts Geneva/Zug roles)",
+     "category": "Global macro hedge funds", "type": "greenhouse",
+     "slug": "squarepointcapital", "profile": "finance"},
+    {"name": "ExodusPoint (macro multi-strategy)",
+     "category": "Global macro hedge funds", "type": "greenhouse",
+     "slug": "exoduspoint", "profile": "finance"},
+
+    # ---- pure macro funds (bookmarks — no public API) ----------------------
+    {"name": "Brevan Howard (Geneva/London — global macro)",
+     "category": "Global macro hedge funds", "type": "link",
+     "url": "https://www.brevanhoward.com/careers/"},
+    {"name": "Rokos Capital Management (London — global macro)",
+     "category": "Global macro hedge funds", "type": "link",
+     "url": "https://www.rokoscapital.com/careers"},
+    {"name": "Caxton Associates (London — global macro)",
+     "category": "Global macro hedge funds", "type": "link",
+     "url": "https://www.caxton.com/careers"},
+    {"name": "Element Capital (macro)", "category": "Global macro hedge funds",
+     "type": "link", "url": "https://www.elementcapital.com/"},
+    {"name": "Capula Investment Management (macro/fixed income)",
+     "category": "Global macro hedge funds", "type": "link",
+     "url": "https://capula.com/"},
+    {"name": "Eisler Capital (macro multi-strategy)",
+     "category": "Global macro hedge funds", "type": "link",
+     "url": "https://www.eisler.com/"},
+    {"name": "Qube Research & Technologies (systematic)",
+     "category": "Global macro hedge funds", "type": "link",
+     "url": "https://www.qube-rt.com/careers"},
+    {"name": "Kirkoswald Capital (macro)", "category": "Global macro hedge funds",
+     "type": "link", "url": "https://www.kirkoswald.com/"},
+
+    # ---- aggregator searches tuned to global-macro roles -------------------
+    {"name": "eFinancialCareers — 'global macro' roles",
+     "category": "Global macro hedge funds", "type": "link",
+     "url": "https://www.efinancialcareers.com/jobs?q=global%20macro"},
+    {"name": "LinkedIn — 'macro strategist' (Europe, newest first)",
+     "category": "Global macro hedge funds", "type": "link",
+     "url": "https://www.linkedin.com/jobs/search/?keywords=macro%20strategist&location=European%20Union&sortBy=DD"},
+    {"name": "LinkedIn — 'quantitative researcher macro' (newest first)",
+     "category": "Global macro hedge funds", "type": "link",
+     "url": "https://www.linkedin.com/jobs/search/?keywords=quantitative%20researcher%20macro&sortBy=DD"},
 
     # ===================== International institutions ========================
     {"name": "IMF", "category": "International institutions", "type": "workday",
