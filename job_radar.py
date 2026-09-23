@@ -153,12 +153,35 @@ def fetch_workday(src):
     return out
 
 
+def fetch_workable(src):
+    # Workable's public widget endpoint returns the whole board in one GET.
+    # Used by the smaller research houses (e.g. Capital Economics).
+    url = (f"https://apply.workable.com/api/v1/widget/accounts/"
+           f"{src['slug']}?details=true")
+    r = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
+    r.raise_for_status()
+    out = []
+    for j in r.json().get("jobs", []):
+        loc = j.get("location", {}) or {}
+        out.append({
+            "uid":      f"workable:{src['slug']}:{j.get('shortcode') or j.get('id')}",
+            "source":   src["name"],
+            "title":    j.get("title", ""),
+            "location": ", ".join(x for x in
+                                  [loc.get("city"), loc.get("country")] if x),
+            "url":      j.get("url", ""),
+            "posted":   (j.get("published_on") or "")[:10],
+        })
+    return out
+
+
 # Map each "type" string in config to the function that handles it.
 FETCHERS = {
     "greenhouse":      fetch_greenhouse,
     "smartrecruiters": fetch_smartrecruiters,
     "lever":           fetch_lever,
     "workday":         fetch_workday,
+    "workable":        fetch_workable,
 }
 
 
@@ -220,6 +243,25 @@ def load_seen():
         return set()
     with open(SEEN_CSV, newline="", encoding="utf-8") as f:
         return {row["uid"] for row in csv.DictReader(f)}
+
+
+def load_seen_dates():
+    # uid -> the date we FIRST recorded it, used to age old rows off the
+    # dashboard. Rows stay in the ledger forever: dropping them there would
+    # make the radar re-report them as brand new on the next run.
+    if not os.path.exists(SEEN_CSV):
+        return {}
+    out = {}
+    with open(SEEN_CSV, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            try:
+                d = dt.date.fromisoformat((row.get("first_seen") or "").strip())
+            except ValueError:
+                continue                       # malformed date -> treat as ageless
+            uid = row["uid"]
+            if uid not in out or d < out[uid]:  # keep the earliest sighting
+                out[uid] = d
+    return out
 
 
 def append_seen(rows):
@@ -448,6 +490,25 @@ def main():
     # New = anything whose uid we've never recorded before.
     new_jobs = [j for j in all_jobs if j["uid"] not in seen]
 
+    # Age off the dashboard anything we first saw more than MAX_AGE_DAYS ago.
+    # These are still live at the employer, but a vacancy we've been staring at
+    # for over a month is either filled-but-not-taken-down or not going to be
+    # applied for. The ledger keeps them (see load_seen_dates), so they are not
+    # re-reported as new; they are just hidden from the page.
+    max_age = getattr(config, "MAX_AGE_DAYS", 0)
+    stale = 0
+    if max_age:
+        cutoff = dt.date.today() - dt.timedelta(days=max_age)
+        first_seen = load_seen_dates()
+        shown = []
+        for j in all_jobs:
+            d = first_seen.get(j["uid"])
+            if d and d < cutoff:
+                stale += 1
+                continue
+            shown.append(j)
+        all_jobs = shown
+
     write_html(all_jobs, {j["uid"] for j in new_jobs}, link_sources, errors)
     append_seen(new_jobs)
     try:
@@ -455,7 +516,8 @@ def main():
     except Exception as e:
         print(f"  email failed: {e}")
 
-    print(f"\nDone. {len(all_jobs)} matching openings, {len(new_jobs)} new.")
+    print(f"\nDone. {len(all_jobs)} matching openings, {len(new_jobs)} new"
+          + (f", {stale} aged off (>{max_age}d)" if stale else "") + ".")
     print(f"Dashboard: {HTML_OUT}")
 
 

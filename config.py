@@ -74,10 +74,30 @@ SWISS_LOCATIONS = [
     "switzerland", "suisse", "schweiz", ", ch",
 ]
 
+# -----------------------------------------------------------------------------
+# Geography filter for the London section. Deliberately narrow: bare "uk" is
+# NOT used because it also matches "Ukraine". SmartRecruiters renders the
+# country as ", gb", Greenhouse/Workday spell out "United Kingdom".
+# -----------------------------------------------------------------------------
+LONDON_LOCATIONS = [
+    "london", "city of london", "canary wharf",
+    "united kingdom", "england", ", gb",
+]
+
+# -----------------------------------------------------------------------------
+# Dashboard freshness. A posting first seen more than this many days ago is
+# hidden from the page even if the employer still lists it: after a month it is
+# either filled-but-not-removed, or you have already decided against it.
+# It stays in seen_jobs.csv, so it is never re-reported as new. Set to 0 to
+# show everything again.
+# -----------------------------------------------------------------------------
+MAX_AGE_DAYS = 30
+
 # Order in which category sections appear on the dashboard.
 CATEGORY_ORDER = [
     "Geneva / Swiss private finance",
     "Global macro hedge funds",
+    "London private sector",
     "International institutions",
     "Central banks",
     "Rating agencies",
@@ -241,6 +261,132 @@ SOURCES = [
     {"name": "LinkedIn — Switzerland: portfolio / investment strategist",
      "category": "Geneva / Swiss private finance", "type": "link",
      "url": "https://www.linkedin.com/jobs/search/?keywords=investment%20strategist&location=Switzerland&sortBy=DD"},
+
+    # =======================================================================
+    #  LONDON PRIVATE SECTOR
+    #  London is the European hub for macro research, and an LSE/UCL degree
+    #  plus IMF/ECB country work reads well there. Everything here carries
+    #  "locations": LONDON_LOCATIONS, because all of these firms advertise
+    #  globally and only the London desks are relevant.
+    #
+    #  Reality check, same as Geneva: most of this market has no public jobs
+    #  API. Every slug/tenant below was probed and returned real postings for
+    #  the right company before being added -- several obvious guesses were
+    #  rejected as name collisions (greenhouse "london" is a cafe chain, lever
+    #  "capital" is Capital.com, greenhouse "wise" is a US sales agency).
+    #  The banks (HSBC, StanChart, Nomura, NatWest, Barclays), the big active
+    #  managers (Schroders, M&G, Fidelity Intl) and every pure macro boutique
+    #  (Fulcrum, Emso, Exante, Fathom, TS Lombard) run closed boards -> they
+    #  are bookmarks at the end of this block.
+    #
+    #  NOTE ON RUNTIME: Mastercard (~1,100 jobs), Visa (~800) and LSEG (~700)
+    #  are large Workday boards, paginated 20 at a time with a pause between
+    #  pages. They add roughly 2-3 minutes to the run.
+    # =======================================================================
+    # ---- scraped automatically (verified working) --------------------------
+    {"name": "Capital Economics (London — independent macro research)",
+     "category": "London private sector", "type": "workable",
+     "slug": "capital-economics", "profile": "core",
+     "locations": LONDON_LOCATIONS},
+    {"name": "BlueCrest Capital (London — macro/multi-strat)",
+     "category": "London private sector", "type": "greenhouse",
+     "slug": "bluecrestcapitalmanagement", "profile": "finance",
+     "locations": LONDON_LOCATIONS},
+    {"name": "Winton (London — systematic macro)",
+     "category": "London private sector", "type": "greenhouse",
+     "slug": "winton", "profile": "finance", "locations": LONDON_LOCATIONS},
+    {"name": "LSEG / FTSE Russell (London — index & data research)",
+     "category": "London private sector", "type": "workday", "profile": "finance",
+     "locations": LONDON_LOCATIONS,
+     "host": "lseg.wd3.myworkdayjobs.com", "tenant": "lseg", "site": "careers"},
+    {"name": "Mastercard (London — Economics Institute; fintech chapter fit)",
+     "category": "London private sector", "type": "workday", "profile": "finance",
+     "locations": LONDON_LOCATIONS,
+     "host": "mastercard.wd1.myworkdayjobs.com", "tenant": "mastercard",
+     "site": "CorporateCareers"},
+    {"name": "Visa (London — Economic Empowerment Institute)",
+     "category": "London private sector", "type": "workday", "profile": "finance",
+     "locations": LONDON_LOCATIONS,
+     "host": "visa.wd5.myworkdayjobs.com", "tenant": "visa", "site": "Visa"},
+    {"name": "Legal & General (London — LGIM economics)",
+     "category": "London private sector", "type": "smartrecruiters",
+     "slug": "legalandgeneral", "profile": "finance",
+     "locations": LONDON_LOCATIONS},
+    {"name": "Aviva / Aviva Investors (London)",
+     "category": "London private sector", "type": "workday", "profile": "finance",
+     "locations": LONDON_LOCATIONS,
+     "host": "aviva.wd1.myworkdayjobs.com", "tenant": "aviva", "site": "External"},
+    {"name": "abrdn (London/Edinburgh)",
+     "category": "London private sector", "type": "workday", "profile": "finance",
+     "locations": LONDON_LOCATIONS,
+     "host": "abrdn.wd3.myworkdayjobs.com", "tenant": "abrdn", "site": "abrdn"},
+    {"name": "Wise (London — fintech; payments data)",
+     "category": "London private sector", "type": "smartrecruiters",
+     "slug": "wise", "profile": "finance", "locations": LONDON_LOCATIONS},
+    {"name": "Monzo (London — credit risk & economics)",
+     "category": "London private sector", "type": "greenhouse",
+     "slug": "monzo", "profile": "finance", "locations": LONDON_LOCATIONS},
+
+    # ---- bookmarks: no usable API, opened manually -------------------------
+    # Every URL below returned HTTP 200 when checked, EXCEPT the three marked
+    # (403) -- those block scripted requests but open normally in a browser.
+    # Firms deliberately left out because no working careers URL could be
+    # found: Fulcrum, Fathom, Exante Data, Insight Investment, Eisler,
+    # Balyasny. Add them if you find a live link.
+    {"name": "Oxford Economics (macro forecasting)", "category": "London private sector",
+     "type": "link", "url": "https://careers.oxfordeconomics.com/"},
+    {"name": "TS Lombard / GlobalData (macro research)", "category": "London private sector",
+     "type": "link", "url": "https://careers.globaldata.com/"},
+    {"name": "Frontier Economics", "category": "London private sector",
+     "type": "link", "url": "https://www.frontier-economics.com/uk/en/careers/"},
+    {"name": "Oxera", "category": "London private sector",
+     "type": "link", "url": "https://www.oxera.com/careers/"},
+    {"name": "Schroders", "category": "London private sector",
+     "type": "link", "url": "https://www.schroders.com/en/global/individual/careers/"},
+    {"name": "M&G Investments", "category": "London private sector",
+     "type": "link", "url": "https://group.mandg.com/careers"},
+    {"name": "Fidelity International", "category": "London private sector",
+     "type": "link", "url": "https://careers.fidelityinternational.com/"},
+    {"name": "Ninety One (EM macro)", "category": "London private sector",
+     "type": "link", "url": "https://ninetyone.com/en/united-kingdom/careers"},
+    {"name": "Ashmore (EM debt)", "category": "London private sector",
+     "type": "link", "url": "https://www.ashmoregroup.com/en-gb/careers"},
+    {"name": "HSBC (Global Research)", "category": "London private sector",
+     "type": "link", "url": "https://www.hsbc.com/careers"},
+    {"name": "Standard Chartered (EM macro)", "category": "London private sector",
+     "type": "link", "url": "https://jobs.standardchartered.com/"},
+    {"name": "Nomura", "category": "London private sector",
+     "type": "link", "url": "https://www.nomura.com/careers/"},
+    {"name": "Barclays", "category": "London private sector",
+     "type": "link", "url": "https://search.jobs.barclays/"},
+    {"name": "NatWest Group (403)", "category": "London private sector",
+     "type": "link", "url": "https://jobs.natwestgroup.com/"},
+    {"name": "Bloomberg Economics (403)", "category": "London private sector",
+     "type": "link", "url": "https://careers.bloomberg.com/"},
+    {"name": "MSCI", "category": "London private sector",
+     "type": "link", "url": "https://careers.msci.com/"},
+    {"name": "Revolut (403)", "category": "London private sector",
+     "type": "link", "url": "https://www.revolut.com/careers/"},
+    {"name": "Checkout.com", "category": "London private sector",
+     "type": "link", "url": "https://www.checkout.com/careers"},
+    {"name": "Jain Global (multi-strat)", "category": "London private sector",
+     "type": "link", "url": "https://www.jainglobal.com/careers"},
+    {"name": "Tudor Investment", "category": "London private sector",
+     "type": "link", "url": "https://www.tudor.com/careers/"},
+    {"name": "Aspect Capital (systematic macro)", "category": "London private sector",
+     "type": "link", "url": "https://www.aspectcapital.com/careers/"},
+    {"name": "Andurand Capital (commodity macro)", "category": "London private sector",
+     "type": "link", "url": "https://www.andurand.com/careers"},
+    # --- London catch-alls: this market fills largely through these boards --
+    {"name": "LinkedIn — London: economist (newest first)",
+     "category": "London private sector", "type": "link",
+     "url": "https://www.linkedin.com/jobs/search/?keywords=economist&location=London%2C%20England%2C%20United%20Kingdom&sortBy=DD"},
+    {"name": "LinkedIn — London: macro strategist / research",
+     "category": "London private sector", "type": "link",
+     "url": "https://www.linkedin.com/jobs/search/?keywords=macro%20strategist&location=London%2C%20England%2C%20United%20Kingdom&sortBy=DD"},
+    {"name": "eFinancialCareers — London economist/strategist",
+     "category": "London private sector", "type": "link",
+     "url": "https://www.efinancialcareers.co.uk/jobs-UK-London-Economist"},
 
     # =======================================================================
     #  GLOBAL MACRO HEDGE FUNDS
